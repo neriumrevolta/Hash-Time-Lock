@@ -1,4 +1,4 @@
-include "List.aes"
+// include "List.aes"
 payable contract HashTimeLock = 
 
   record state = {
@@ -109,8 +109,8 @@ payable contract HashTimeLock =
     else
       temp_contract.status
 
-  public entrypoint getManyStatus(ids : list(bytes(32))) : list(string) =
-    List.map((id) => getOneStatus(id), ids)
+  // public entrypoint getManyStatus(ids : list(bytes(32))) : list(string) =
+  //   List.map((id) => getOneStatus(id), ids)
 
   public entrypoint  init() ={ 
     contracts = {} }
