@@ -98,10 +98,13 @@ payable contract HashTimeLock =
   public entrypoint get_contract(id : bytes(32)) : lock_contract =
     state.contracts[id] 
 
-  public entrypoint contractExists(id : bytes(32)) : bool =
+  public entrypoint contract_exists(id : bytes(32)) : bool =
     state.contracts[id].status != "invalid"
 
-  public entrypoint getOneStatus(id : bytes(32)) : string =
+  public entrypoint dummy_func(myNum : int) : int =
+    5 + myNum
+
+  public entrypoint get_one_status(id : bytes(32)) : string =
     let temp_contract : lock_contract = state.contracts[id]
     if(temp_contract.status == "active" &&
         temp_contract.expiration < Chain.timestamp)
@@ -109,7 +112,7 @@ payable contract HashTimeLock =
     else
       temp_contract.status
 
-  // public entrypoint getManyStatus(ids : list(bytes(32))) : list(string) =
+  // public entrypoint get_many_status(ids : list(bytes(32))) : list(string) =
   //   List.map((id) => getOneStatus(id), ids)
 
   public entrypoint  init() ={ 
