@@ -1,57 +1,23 @@
-"use strict";
-
-// We'll need the main client module `Ae` in the `Universal` flavor from the SDK.
-const { Universal: Ae } = require("@aeternity/aepp-sdk");
-const program = require("commander");
 const fs = require("fs");
+const Universal = require("@aeternity/aepp-sdk").Universal;
 
-function exec(infile, fn, args) {
-  if (!infile || !fn) {
-  	program.outputHelp();
-  	process.exit(1);
-  }
+const main = async () => {
+    const client = await Universal({
+        url: 'https://sdk-testnet.aepps.com/',
+        internalUrl: 'https://sdk-testnet.aepps.com/',
+        compilerUrl: 'https://compiler.aepps.com',
+        keypair: {
+            secretKey: 'fb65e4673da53618d7ef4d28d8a2b06f1bf52f979ac1a1e9cc47e90713c751356635f86662a34aa89f95eeddada748b3cb930634e8122f0b01997aea9d63d893',
+            publicKey: 'ak_n1qctXxqgrWw46kBuTKSVDSCPixxomX5tWh42wFCspBUwcDJ8'
+        }
+    });
 
-  const code = fs.readFileSync(infile, "utf-8");
+    let contractSource = fs.readFileSync('./contracts/HashTimeLock.aes', 'utf-8');
+    const contract = await client.getContractInstance(contractSource);
+    await contract.deploy();
 
-  Ae({
-    url: program.host,
-    debug: program.debug,
-    compilerUrl: program.compilerUrl,
-    process
-  })
-    .then(ae => {
-      return ae.contractCompile(code);
-    })
-    .then(bytecode => {
-      console.log(`Obtained bytecode ${bytecode.bytecode}`);
-      return bytecode.deploy({ initState: program.init });
-    })
-    .then(deployed => {
-      console.log(`Contract deployed at ${deployed.address}`);
-      return deployed.call(fn, { args: args.join(" ") });
-    })
-    .then(value => {
-    	console.log(`Execution result: ${value}`);
-    })
-    .catch(e => console.log(e.message));
-}
+    const result = await contract.methods.dummy_func(2);
+    console.log(result)
+};
 
-program
-  .version("0.1.0")
-  .arguments("<infile> <function> [args...]")
-  .option("-i, --init [state]", "Arguments to contructor function")
-  .option(
-    "-H, --host [hostname]",
-    "Node to connect to",
-    "http://localhost:3001"
-  )
-  .option(
-    "-C, --compilerUrl [compilerUrl]",
-    "Compiler to connect to",
-    "http://localhost:3080"
-  )
-  .option("--debug", "Switch on debugging")
-  .action(exec)
-  .parse(process.argv);
-
-exec("./contracts/HashTimeLock.aes", "dummy_func", "2");
+main();
