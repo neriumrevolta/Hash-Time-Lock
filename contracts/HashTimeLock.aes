@@ -27,7 +27,7 @@ payable contract HashTimeLock =
     let temp_contract: lock_contract = state.contracts[id]
     require(is_active(temp_contract.status), "SWAP_NOT_ACTIVE")
     require(temp_contract.expiration > Chain.timestamp, "INVALID_TIME")
-    // require(temp_contract.hash_lock == String.sha256(Bytes.to_str(secret)), "INVALID_SECRET")
+    require(temp_contract.hash_lock == Crypto.sha256(secret), "INVALID_SECRET")
 
   function refundable(id : bytes(32)) =
     let temp_contract: lock_contract = state.contracts[id]
